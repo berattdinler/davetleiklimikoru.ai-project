@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth dark"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwMzMxMDU4MzgwMDExOTM5Mjg2NyIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjX2U2ZjhmZTFkZTNiOGJjN2ZfRGF2ZXRBZ2FjaV9BbmFsaXouaHRtbC0zNTQifSwiZXhwIjoxNzk1NjAwMjg4LCJpYXQiOjE3OTU1OTY2ODgsImFsZyI6IlJTMjU2In0.JNrDj8lglehpTiD0qGQINiYxOCRlA24CYPxQcr9_ba48Lws--Gf7NLxSy4RYr60-JgyammhtUT2127N_LadT9L1GZG-JneUcDow7rS_ej5wVcCPJykCYU9Cn15wTHNzCeCxbQL84_gnBxlVmGmwFZ-D8WbMkKNKfAtOY-2xi9W587HhLso_QXIt9FoZQTus1JeJPaVaOLoQ43UhUND6I5K1lgOGnrwlSKPjXPN_t5lMfZDpxilCF5uvPHOuJFQDLxnk9X2Mp_NakXtdbOausv495CulMxLc7uFrJqtN2poFeHhp-SHk4ipveEtqEti4D9KOYyNikVYmt-Kwet-kqzA","c_e6f8fe1de3b8bc7f_DavetAgaci_Analiz.html-354")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Davet Ağacı — Etkileşimli Sistem ve Mimari Analizi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            leaf: '#6cb877',
+            leafDark: '#529b5d',
+            sun: '#f1bd45',
+            forest: '#22302a',
+            forestDeep: '#0f1812',
+            softBg: '#f5f8f3',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Özel kaydırma çubuğu ve yumuşak geçişler */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(108, 184, 119, 0.35); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(108, 184, 119, 0.65); }
+
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      70% { transform: scale(1.15); opacity: 0; }
+      100% { transform: scale(1.15); opacity: 0; }
+    }
+    .pulse-ring { animation: pulseRing 2s infinite; }
+
+    .tab-active {
+      background-color: #6cb877;
+      color: #10301a;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(108, 184, 119, 0.35);
+    }
+    .dark .tab-active {
+      background-color: #7fcf8b;
+      color: #0c1a10;
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter, system-ui, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:JetBrains Mono, monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.-bottom-16{bottom:-4rem}.-left-16{left:-4rem}.-right-16{right:-4rem}.-top-16{top:-4rem}.left-1\/2{left:50%}.left-3{left:0.75rem}.top-0{top:0px}.top-1\/2{top:50%}.top-1\/4{top:25%}.top-3{top:0.75rem}.z-40{z-index:40}.mx-auto{margin-left:auto;margin-right:auto}.mb-2{margin-bottom:0.5rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-1\.5{margin-top:0.375rem}.mt-12{margin-top:3rem}.mt-2{margin-top:0.5rem}.mt-3{margin-top:0.75rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.aspect-\[4\/3\]{aspect-ratio:4/3}.h-1{height:0.25rem}.h-12{height:3rem}.h-16{height:4rem}.h-2{height:0.5rem}.h-2\.5{height:0.625rem}.h-24{height:6rem}.h-3{height:0.75rem}.h-5{height:1.25rem}.h-64{height:16rem}.h-7{height:1.75rem}.h-72{height:18rem}.h-9{height:2.25rem}.h-full{height:100%}.min-h-\[54px\]{min-height:54px}.w-10{width:2.5rem}.w-12{width:3rem}.w-2{width:0.5rem}.w-2\/3{width:66.666667%}.w-5{width:1.25rem}.w-64{width:16rem}.w-7{width:1.75rem}.w-72{width:18rem}.w-9{width:2.25rem}.w-full{width:100%}.min-w-\[150px\]{min-width:150px}.max-w-6xl{max-width:72rem}.max-w-\[230px\]{max-width:230px}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-95{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-crosshair{cursor:crosshair}.select-none{-webkit-user-select:none;user-select:none}.list-disc{list-style-type:disc}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-10 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2.5rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.625rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.scroll-smooth{scroll-behavior:smooth}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-\[28px\]{border-radius:28px}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-l-4{border-left-width:4px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-\[\#223428\]{--tw-border-opacity:1;border-color:rgb(34 52 40 / var(--tw-border-opacity, 1))}.border-\[\#667569\]{--tw-border-opacity:1;border-color:rgb(102 117 105 / var(--tw-border-opacity, 1))}.border-\[\#e6ebe4\]{--tw-border-opacity:1;border-color:rgb(230 235 228 / var(--tw-border-opacity, 1))}.border-forest{--tw-border-opacity:1;border-color:rgb(34 48 42 / var(--tw-border-opacity, 1))}.border-leaf{--tw-border-opacity:1;border-color:rgb(108 184 119 / var(--tw-border-opacity, 1))}.border-leaf\/30{border-color:rgb(108 184 119 / 0.3)}.border-leaf\/40{border-color:rgb(108 184 119 / 0.4)}.border-sun{--tw-border-opacity:1;border-color:rgb(241 189 69 / var(--tw-border-opacity, 1))}.border-sun\/20{border-color:rgb(241 189 69 / 0.2)}.bg-\[\#111915\]{--tw-bg-opacity:1;background-color:rgb(17 25 21 / var(--tw-bg-opacity, 1))}.bg-\[\#e6ebe4\]{--tw-bg-opacity:1;background-color:rgb(230 235 228 / var(--tw-bg-opacity, 1))}.bg-black\/60{background-color:rgb(0 0 0 / 0.6)}.bg-forest{--tw-bg-opacity:1;background-color:rgb(34 48 42 / var(--tw-bg-opacity, 1))}.bg-leaf{--tw-bg-opacity:1;background-color:rgb(108 184 119 / var(--tw-bg-opacity, 1))}.bg-leaf\/10{background-color:rgb(108 184 119 / 0.1)}.bg-leaf\/15{background-color:rgb(108 184 119 / 0.15)}.bg-leaf\/20{background-color:rgb(108 184 119 / 0.2)}.bg-softBg{--tw-bg-opacity:1;background-color:rgb(245 248 243 / var(--tw-bg-opacity, 1))}.bg-sun{--tw-bg-opacity:1;background-color:rgb(241 189 69 / var(--tw-bg-opacity, 1))}.bg-sun\/10{background-color:rgb(241 189 69 / 0.1)}.bg-sun\/20{background-color:rgb(241 189 69 / 0.2)}.bg-sun\/25{background-color:rgb(241 189 69 / 0.25)}.bg-sun\/30{background-color:rgb(241 189 69 / 0.3)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/85{background-color:rgb(255 255 255 / 0.85)}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-leaf{--tw-gradient-from:#6cb877 var(--tw-gradient-from-position);--tw-gradient-to:rgb(108 184 119 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-sun{--tw-gradient-to:#f1bd45 var(--tw-gradient-to-position)}.p-2{padding:0.5rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pb-5{padding-bottom:1.25rem}.pl-4{padding-left:1rem}.pt-2{padding-top:0.5rem}.text-center{text-align:center}.font-mono{font-family:JetBrains Mono, monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-\[1\.12\]{line-height:1.12}.leading-none{line-height:1}.leading-relaxed{line-height:1.625}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-\[\#10301a\]{--tw-text-opacity:1;color:rgb(16 48 26 / var(--tw-text-opacity, 1))}.text-\[\#3a2a00\]{--tw-text-opacity:1;color:rgb(58 42 0 / var(--tw-text-opacity, 1))}.text-\[\#667569\]{--tw-text-opacity:1;color:rgb(102 117 105 / var(--tw-text-opacity, 1))}.text-\[\#6e5000\]{--tw-text-opacity:1;color:rgb(110 80 0 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-forest{--tw-text-opacity:1;color:rgb(34 48 42 / var(--tw-text-opacity, 1))}.text-forest\/90{color:rgb(34 48 42 / 0.9)}.text-leafDark{--tw-text-opacity:1;color:rgb(82 155 93 / var(--tw-text-opacity, 1))}.text-sun{--tw-text-opacity:1;color:rgb(241 189 69 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-white\/80{color:rgb(255 255 255 / 0.8)}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.ring-4{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.ring-sun{--tw-ring-opacity:1;--tw-ring-color:rgb(241 189 69 / var(--tw-ring-opacity, 1))}.blur-3xl{--tw-blur:blur(64px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.duration-500{transition-duration:500ms}.duration-700{transition-duration:700ms}.selection\:bg-leaf\/30 *::selection{background-color:rgb(108 184 119 / 0.3)}.selection\:bg-leaf\/30::selection{background-color:rgb(108 184 119 / 0.3)}.hover\:border-leaf:hover{--tw-border-opacity:1;border-color:rgb(108 184 119 / var(--tw-border-opacity, 1))}.hover\:bg-leaf\/10:hover{background-color:rgb(108 184 119 / 0.1)}.hover\:bg-leafDark:hover{--tw-bg-opacity:1;background-color:rgb(82 155 93 / var(--tw-bg-opacity, 1))}.hover\:text-forest:hover{--tw-text-opacity:1;color:rgb(34 48 42 / var(--tw-text-opacity, 1))}.hover\:opacity-90:hover{opacity:0.9}.hover\:brightness-95:hover{--tw-brightness:brightness(.95);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.disabled\:opacity-40:disabled{opacity:0.4}.dark\:border-\[\#223428\]:is(.dark *){--tw-border-opacity:1;border-color:rgb(34 52 40 / var(--tw-border-opacity, 1))}.dark\:border-\[\#9db1a2\]:is(.dark *){--tw-border-opacity:1;border-color:rgb(157 177 162 / var(--tw-border-opacity, 1))}.dark\:bg-\[\#15231a\]:is(.dark *){--tw-bg-opacity:1;background-color:rgb(21 35 26 / var(--tw-bg-opacity, 1))}.dark\:bg-\[\#223428\]:is(.dark *){--tw-bg-opacity:1;background-color:rgb(34 52 40 / var(--tw-bg-opacity, 1))}.dark\:bg-forestDeep:is(.dark *){--tw-bg-opacity:1;background-color:rgb(15 24 18 / var(--tw-bg-opacity, 1))}.dark\:bg-forestDeep\/60:is(.dark *){background-color:rgb(15 24 18 / 0.6)}.dark\:bg-forestDeep\/70:is(.dark *){background-color:rgb(15 24 18 / 0.7)}.dark\:bg-forestDeep\/80:is(.dark *){background-color:rgb(15 24 18 / 0.8)}.dark\:bg-forestDeep\/85:is(.dark *){background-color:rgb(15 24 18 / 0.85)}.dark\:bg-leaf:is(.dark *){--tw-bg-opacity:1;background-color:rgb(108 184 119 / var(--tw-bg-opacity, 1))}.dark\:text-\[\#0c1a10\]:is(.dark *){--tw-text-opacity:1;color:rgb(12 26 16 / var(--tw-text-opacity, 1))}.dark\:text-\[\#9db1a2\]:is(.dark *){--tw-text-opacity:1;color:rgb(157 177 162 / var(--tw-text-opacity, 1))}.dark\:text-\[\#e9f1e8\]:is(.dark *){--tw-text-opacity:1;color:rgb(233 241 232 / var(--tw-text-opacity, 1))}.dark\:text-\[\#e9f1e8\]\/90:is(.dark *){color:rgb(233 241 232 / 0.9)}.dark\:text-amber-400:is(.dark *){--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.dark\:text-leaf:is(.dark *){--tw-text-opacity:1;color:rgb(108 184 119 / var(--tw-text-opacity, 1))}.dark\:text-sun:is(.dark *){--tw-text-opacity:1;color:rgb(241 189 69 / var(--tw-text-opacity, 1))}.dark\:hover\:text-white:hover:is(.dark *){--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}@media (min-width: 640px){.sm\:inline{display:inline}.sm\:w-56{width:14rem}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.sm\:grid-cols-5{grid-template-columns:repeat(5, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-end{align-items:flex-end}.sm\:gap-3{gap:0.75rem}.sm\:p-10{padding:2.5rem}.sm\:p-5{padding:1.25rem}.sm\:p-8{padding:2rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:py-12{padding-top:3rem;padding-bottom:3rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:col-span-5{grid-column:span 5 / span 5}.md\:col-span-7{grid-column:span 7 / span 7}.md\:inline-flex{display:inline-flex}.md\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}}@media (min-width: 1024px){.lg\:col-span-5{grid-column:span 5 / span 5}.lg\:col-span-6{grid-column:span 6 / span 6}.lg\:col-span-7{grid-column:span 7 / span 7}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.lg\:text-\[2\.65rem\]{font-size:2.65rem}}</style></head>
+<body class="bg-softBg text-forest dark:bg-forestDeep dark:text-[#e9f1e8] transition-colors duration-300 antialiased selection:bg-leaf/30">
+
+  <!-- Üst Gezinme Çubuğu -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-white/85 dark:bg-forestDeep/85 border-b border-[#e6ebe4] dark:border-[#223428]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-leaf/20 flex items-center justify-center border border-leaf/40">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6cb877" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14z"></path>
+            <path d="M5 19l8-8"></path>
+          </svg>
+        </div>
+        <div>
+          <span class="font-extrabold tracking-tight text-base sm:text-lg block leading-none">Davet Ağacı</span>
+          <span class="text-[11px] font-medium text-[#667569] dark:text-[#9db1a2]">Mimari &amp; Etkileşimli Proje Analizi</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <span class="hidden md:inline-flex items-center gap-1.5 text-xs font-mono px-2.5 py-1 rounded-full bg-leaf/15 text-leafDark dark:text-leaf border border-leaf/30">
+          <span class="w-2 h-2 rounded-full bg-leaf animate-pulse"></span>
+          Tek Dosya Prototip (~18 KB)
+        </span>
+        <button id="downloadHtmlBtn" type="button" class="px-3 py-2 rounded-xl bg-leaf hover:bg-leafDark text-[#10301a] font-bold text-xs transition flex items-center gap-1.5 shadow-sm">
+          <span>⬇️</span>
+          <span>HTML İndir</span>
+        </button>
+        <button id="themeToggle" type="button" aria-label="Temayı değiştir" class="p-2.5 rounded-xl border border-[#e6ebe4] dark:border-[#223428] bg-white dark:bg-[#15231a] hover:border-leaf transition flex items-center gap-2 text-xs font-semibold">
+          <span id="themeIcon">☀️</span>
+          <span class="hidden sm:inline" id="themeLabel">Aydınlık Mod</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10">
+
+    <!-- 1. GENEL BAKIŞ VE PROJE ÖZETİ -->
+    <section class="relative overflow-hidden rounded-3xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] p-6 sm:p-10 shadow-sm">
+      <div class="absolute -right-16 -top-16 w-72 h-72 rounded-full bg-leaf/10 blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-64 h-64 rounded-full bg-sun/10 blur-3xl pointer-events-none"></div>
+
+      <div class="relative grid lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-7 space-y-5">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sun/20 text-[#6e5000] dark:text-sun text-xs font-bold">
+            <span>🌱 Sosyal Etki + Oyunlaştırma + Bilgisayarlı Görü</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold tracking-tight leading-[1.12]">
+            Davet et. Puan kazan. <span class="text-leafDark dark:text-leaf">Sponsor desteğiyle</span> fidan dik.
+          </h1>
+
+          <p class="text-[#667569] dark:text-[#9db1a2] text-base sm:text-lg leading-relaxed">
+            <strong>Davet Ağacı</strong>, özellikle lise öğrencilerinin çevre farkındalığını artırmak için tasarlanmış, sıfır dış bağımlılığa sahip tek dosyalık bir etkileşimli prototiptir. Kullanıcıların cebinden para çıkmadan, referans zinciriyle kazanılan puanların sponsor bütçeleriyle gerçek/sembolik fidanlara dönüşmesini test eder.
+          </p>
+
+          <!-- Hızlı Özet Kartları -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <div class="p-3.5 rounded-2xl bg-softBg dark:bg-forestDeep/70 border border-[#e6ebe4] dark:border-[#223428]">
+              <div class="text-xs text-[#667569] dark:text-[#9db1a2]">Davet Ödülü</div>
+              <div class="text-lg font-extrabold text-leafDark dark:text-leaf mt-0.5">+10 Puan</div>
+              <div class="text-[11px] text-[#667569] dark:text-[#9db1a2]">%70 kabul olasılığı</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-softBg dark:bg-forestDeep/70 border border-[#e6ebe4] dark:border-[#223428]">
+              <div class="text-xs text-[#667569] dark:text-[#9db1a2]">Fidan Bedeli</div>
+              <div class="text-lg font-extrabold text-sun mt-0.5">30 Puan</div>
+              <div class="text-[11px] text-[#667569] dark:text-[#9db1a2]">3 başarılı davet</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-softBg dark:bg-forestDeep/70 border border-[#e6ebe4] dark:border-[#223428]">
+              <div class="text-xs text-[#667569] dark:text-[#9db1a2]">Günlük Limit</div>
+              <div class="text-lg font-extrabold mt-0.5">5 Hak</div>
+              <div class="text-[11px] text-[#667569] dark:text-[#9db1a2]">Spam koruması</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-softBg dark:bg-forestDeep/70 border border-[#e6ebe4] dark:border-[#223428]">
+              <div class="text-xs text-[#667569] dark:text-[#9db1a2]">El İzleme</div>
+              <div class="text-lg font-extrabold text-leafDark dark:text-leaf mt-0.5">80×60 px</div>
+              <div class="text-[11px] text-[#667569] dark:text-[#9db1a2]">%100 cihaz içi</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sağ Taraf: Kod Anatomisi Özet Kartı -->
+        <div class="lg:col-span-5 bg-softBg dark:bg-forestDeep rounded-2xl border border-[#e6ebe4] dark:border-[#223428] p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[#667569] dark:text-[#9db1a2]">Dosya Mimarisi (Davet Ağacı.html)</h2>
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-leaf/20 text-leafDark dark:text-leaf">Vanilla JS + SVG</span>
+          </div>
+
+          <div class="space-y-2.5 text-sm">
+            <div class="p-3 rounded-xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] flex items-start gap-3">
+              <span class="w-7 h-7 rounded-lg bg-leaf/20 text-leafDark dark:text-leaf font-bold flex items-center justify-center shrink-0">1</span>
+              <div>
+                <div class="font-bold">Dinamik CSS Değişkeni (<code class="font-mono text-xs text-leafDark dark:text-leaf">--gr</code>)</div>
+                <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-0.5">Dikilen fidan ve davet sayısına göre sayfanın arka planını ve tepesini kademeli yeşerten <code class="font-mono">@property</code> animasyonu.</p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] flex items-start gap-3">
+              <span class="w-7 h-7 rounded-lg bg-sun/25 text-[#6e5000] dark:text-sun font-bold flex items-center justify-center shrink-0">2</span>
+              <div>
+                <div class="font-bold">Durum Tabanlı Simülasyon Motoru</div>
+                <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-0.5">Kuyruk (queue), sponsor havuzu ve gerçek zamanlı SVG ağaç/balon çizimi.</p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] flex items-start gap-3">
+              <span class="w-7 h-7 rounded-lg bg-leaf/20 text-leafDark dark:text-leaf font-bold flex items-center justify-center shrink-0">3</span>
+              <div>
+                <div class="font-bold">Kütüphanesiz Bilgisayarlı Görü</div>
+                <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-0.5">Harici AI modeli indirmeden YCbCr renk uzayı + hareket geçmişi ile temassız parmak ucu takibi.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. ETKİLEŞİMLİ MİMARİ VE ÖZELLİK İNCELEYİCİ (SEKMELİ YAPI) -->
+    <section class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Etkileşimli Sistem İnceleyici</h2>
+          <p class="text-sm text-[#667569] dark:text-[#9db1a2] mt-1">Aşağıdaki modülleri seçerek kodun arkasındaki mantığı canlı olarak test edin.</p>
+        </div>
+      </div>
+
+      <!-- Sekme Butonları -->
+      <nav aria-label="Modül sekmeleri" class="flex flex-wrap gap-2 p-2 rounded-2xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428]">
+        <button data-tab="ekonomi" class="tab-btn tab-active flex-1 min-w-[150px] px-4 py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
+          <span>🌱</span> Sistem Akışı &amp; Ekonomi
+        </button>
+        <button data-tab="guvenlik" class="tab-btn flex-1 min-w-[150px] px-4 py-3 rounded-xl text-sm font-medium text-[#667569] dark:text-[#9db1a2] hover:text-forest dark:hover:text-white transition flex items-center justify-center gap-2">
+          <span>🛡️</span> Güvenlik &amp; Anti-Suistimal
+        </button>
+        <button data-tab="prototip" class="tab-btn flex-1 min-w-[150px] px-4 py-3 rounded-xl text-sm font-medium text-[#667569] dark:text-[#9db1a2] hover:text-forest dark:hover:text-white transition flex items-center justify-center gap-2">
+          <span>📱</span> 3 Ekranlı Mobil Prototip
+        </button>
+        <button data-tab="kamera" class="tab-btn flex-1 min-w-[150px] px-4 py-3 rounded-xl text-sm font-medium text-[#667569] dark:text-[#9db1a2] hover:text-forest dark:hover:text-white transition flex items-center justify-center gap-2">
+          <span>✋</span> Kamera ile El Kontrolü
+        </button>
+        <button data-tab="arastirma" class="tab-btn flex-1 min-w-[150px] px-4 py-3 rounded-xl text-sm font-medium text-[#667569] dark:text-[#9db1a2] hover:text-forest dark:hover:text-white transition flex items-center justify-center gap-2">
+          <span>🎓</span> Araştırma &amp; Etik
+        </button>
+      </nav>
+
+      <!-- SEKME 1: SİSTEM AKIŞI VE EKONOMİ -->
+      <div id="panel-ekonomi" class="tab-panel rounded-3xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] p-6 sm:p-8 space-y-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#e6ebe4] dark:border-[#223428] pb-5">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-leafDark dark:text-leaf">Çift Taraflı Değer Döngüsü</span>
+            <h3 class="text-xl sm:text-2xl font-extrabold mt-1">Davet → Puan → Sponsor Bütçesi → Fidan Dikimi</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="simInviteBtn" class="px-4 py-2.5 rounded-full bg-leaf hover:bg-leafDark text-[#10301a] font-bold text-xs sm:text-sm transition shadow-sm">
+              + Arkadaş Davet Et (+10 Puan)
+            </button>
+            <button id="simPlantBtn" class="px-4 py-2.5 rounded-full bg-sun hover:brightness-95 text-[#3a2a00] font-bold text-xs sm:text-sm transition shadow-sm disabled:opacity-40" disabled="">
+              🌳 Fidan Dik (30 Puan)
+            </button>
+            <button id="simSponsorBtn" class="px-4 py-2.5 rounded-full border-2 border-leaf text-forest dark:text-leaf font-bold text-xs sm:text-sm hover:bg-leaf/10 transition">
+              🎈 Sponsor Ekle (+5–10)
+            </button>
+            <button id="simResetBtn" class="px-3 py-2.5 rounded-full border border-[#e6ebe4] dark:border-[#223428] text-xs font-semibold hover:border-leaf transition">
+              Sıfırla
+            </button>
+          </div>
+        </div>
+
+        <!-- Canlı Tepe Yeşillenme (--gr) Görselleştirme Şeridi -->
+        <div class="rounded-2xl border border-[#e6ebe4] dark:border-[#223428] bg-softBg dark:bg-forestDeep/80 p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-5">
+          <div class="w-full sm:w-56 h-24 rounded-xl overflow-hidden border border-[#e6ebe4] dark:border-[#223428] bg-white dark:bg-[#15231a] shrink-0">
+            <svg viewBox="0 0 240 100" class="w-full h-full block" aria-label="Yeşeren tepe önizlemesi">
+              <path id="ecoHillPath" d="M0 72 Q60 52 120 68 T240 60 V100 H0 Z" fill="#e6ebe4" class="transition-colors duration-700"></path>
+              <g id="ecoMiniTrees"></g>
+            </svg>
+          </div>
+          <div class="flex-1 w-full space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold">
+              <span>Dinamik Yeşillik Değişkeni (<code class="font-mono text-leafDark dark:text-leaf">--gr</code>)</span>
+              <span id="ecoGreenPct" class="font-mono px-2 py-0.5 rounded bg-leaf/20 text-leafDark dark:text-leaf">%0 (0.00)</span>
+            </div>
+            <div class="w-full h-3 rounded-full bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] overflow-hidden">
+              <div id="ecoGreenBar" class="h-full bg-gradient-to-r from-leaf to-sun transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p class="text-[11px] text-[#667569] dark:text-[#9db1a2]">
+              Orijinal koddaki <code class="font-mono">Math.min(1, pl * 0.085 + acc * 0.012)</code> formülüyle her kabul edilen davet ve dikilen fidan tepe rengini kademeli olarak canlandırır.
+            </p>
+          </div>
+        </div>
+
+        <!-- 5 Adımlı İnteraktif Akış Diyagramı -->
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+          <div id="step-1" class="step-card p-4 rounded-2xl border-2 border-leaf bg-leaf/10 transition">
+            <div class="text-xs font-mono font-bold text-leafDark dark:text-leaf">ADIM 01</div>
+            <div class="font-bold text-base mt-1">1. Davet Gönder</div>
+            <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1.5">Kullanıcı <code class="font-mono">FIDAN-XXXX</code> kodunu paylaşır.</p>
+          </div>
+          <div id="step-2" class="step-card p-4 rounded-2xl border border-[#e6ebe4] dark:border-[#223428] bg-softBg dark:bg-forestDeep/60 transition">
+            <div class="text-xs font-mono font-bold text-[#667569] dark:text-[#9db1a2]">ADIM 02</div>
+            <div class="font-bold text-base mt-1">2. Kabul (%70)</div>
+            <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1.5">Gerçek kullanıcı kaydolursa davet onaylanır.</p>
+          </div>
+          <div id="step-3" class="step-card p-4 rounded-2xl border border-[#e6ebe4] dark:border-[#223428] bg-softBg dark:bg-forestDeep/60 transition">
+            <div class="text-xs font-mono font-bold text-[#667569] dark:text-[#9db1a2]">ADIM 03</div>
+            <div class="font-bold text-base mt-1">3. +10 Puan</div>
+            <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1.5">30 puana ulaşınca 1 fidan hakkı doğar.</p>
+          </div>
+          <div id="step-4" class="step-card p-4 rounded-2xl border border-[#e6ebe4] dark:border-[#223428] bg-softBg dark:bg-forestDeep/60 transition">
+            <div class="text-xs font-mono font-bold text-[#667569] dark:text-[#9db1a2]">ADIM 04</div>
+            <div class="font-bold text-base mt-1">4. Sponsor Havuzu</div>
+            <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1.5">Bütçe varsa fidan hemen dikilir, yoksa sıraya girer.</p>
+          </div>
+          <div id="step-5" class="step-card p-4 rounded-2xl border border-[#e6ebe4] dark:border-[#223428] bg-softBg dark:bg-forestDeep/60 transition">
+            <div class="text-xs font-mono font-bold text-[#667569] dark:text-[#9db1a2]">ADIM 05</div>
+            <div class="font-bold text-base mt-1">5. Fidan Dikilir</div>
+            <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1.5">Tepe yeşerir (<code class="font-mono">--gr</code> artar), bütçe 1 azalır.</p>
+          </div>
+        </div>
+
+        <!-- Canlı Durum Göstergeleri ve Tavuk-Yumurta Uyarısı -->
+        <div class="grid md:grid-cols-12 gap-6 items-stretch">
+          <div class="md:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] flex flex-col justify-between">
+              <span class="text-xs text-[#667569] dark:text-[#9db1a2]">Mevcut Puan</span>
+              <span id="ecoPts" class="text-3xl font-extrabold mt-2">0</span>
+              <span class="text-[11px] text-leafDark dark:text-leaf mt-1">Hedef: 30 puan</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] flex flex-col justify-between">
+              <span class="text-xs text-[#667569] dark:text-[#9db1a2]">Sponsor Bütçesi</span>
+              <span id="ecoBud" class="text-3xl font-extrabold text-sun mt-2">1</span>
+              <span class="text-[11px] text-[#667569] dark:text-[#9db1a2] mt-1">Hazır fidan fonu</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] flex flex-col justify-between">
+              <span class="text-xs text-[#667569] dark:text-[#9db1a2]">Sırada Bekleyen</span>
+              <span id="ecoQueue" class="text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-2">0</span>
+              <span class="text-[11px] text-[#667569] dark:text-[#9db1a2] mt-1">Bütçe bekliyor</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] flex flex-col justify-between">
+              <span class="text-xs text-[#667569] dark:text-[#9db1a2]">Dikilen Fidan</span>
+              <span id="ecoPlanted" class="text-3xl font-extrabold text-leafDark dark:text-leaf mt-2">0</span>
+              <span class="text-[11px] text-[#667569] dark:text-[#9db1a2] mt-1">Tamamlanan</span>
+            </div>
+          </div>
+
+          <!-- Tavuk-Yumurta Riski Kutusu -->
+          <div id="chickenEggBox" class="md:col-span-5 p-5 rounded-2xl border-l-4 border-sun bg-sun/10 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 font-bold text-sm text-[#6e5000] dark:text-sun">
+                <span>⚠️ Sistem Riski: “Tavuk-Yumurta” Darboğazı</span>
+              </div>
+              <p id="ecoFeedback" class="text-xs sm:text-sm text-forest/90 dark:text-[#e9f1e8]/90 mt-2 leading-relaxed">
+                Kullanıcılar hızla davet gönderip 30 puana ulaştığında <strong>sponsor bütçesi tükenmişse</strong> sistem fidanı iptal etmez; <code class="font-mono text-xs">q++</code> kuyruğuna (bekleme sırasına) alır. Yeni sponsor eklendiğinde <code class="font-mono text-xs">drain()</code> fonksiyonu sıradaki fidanları otomatik diker.
+              </p>
+            </div>
+            <div class="mt-3 pt-2 border-t border-sun/20 text-[11px] font-mono text-[#6e5000] dark:text-sun">
+              Dene: 6 kez davet et → 2. fidanı dikmeye çalış → Kuyruğu gör!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEKME 2: GÜVENLİK VE ANTI-SUİSTİMAL MEKANİZMASI -->
+      <div id="panel-guvenlik" class="tab-panel hidden rounded-3xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] p-6 sm:p-8 space-y-8">
+        <div class="border-b border-[#e6ebe4] dark:border-[#223428] pb-5">
+          <span class="text-xs font-bold uppercase tracking-wider text-leafDark dark:text-leaf">Oyunlaştırma Koruması</span>
+          <h3 class="text-xl sm:text-2xl font-extrabold mt-1">Sahte Hesap ve Puan Kasma Engelleme Mekanizması</h3>
+          <p class="text-sm text-[#667569] dark:text-[#9db1a2] mt-1">
+            Referans sistemlerinin en büyük zafiyeti olan kendi kendine sahte hesap açma (self-referral) girişimlerine karşı iki katmanlı savunma kurgulanmıştır.
+          </p>
+        </div>
+
+        <div class="grid lg:grid-cols-12 gap-8">
+          <!-- Sol: 2 Savunma Katmanı Açıklaması -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="p-5 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428]">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-base">1. Katman: Hız Sınırı (Rate Limit)</span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-leaf/20 text-leafDark dark:text-leaf">Günde Max 5 Hak</span>
+              </div>
+              <p class="text-xs sm:text-sm text-[#667569] dark:text-[#9db1a2] mt-2 leading-relaxed">
+                Kullanıcı günde en fazla <code class="font-mono">left = 5</code> davet gönderebilir. Hak tükendiğinde butonlar kilitlenir ve ertesi güne (<code class="font-mono">day()</code>) kadar yeni deneme yapılamaz. Bot saldırılarının hızını keser.
+              </p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428]">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-base">2. Katman: Olasılıksal Tespit</span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sun/25 text-[#6e5000] dark:text-sun">%80 Engelleme</span>
+              </div>
+              <p class="text-xs sm:text-sm text-[#667569] dark:text-[#9db1a2] mt-2 leading-relaxed">
+                Aynı cihaz/IP üzerinden açılan şüpheli kayıtlarda sistem <strong>%80 ihtimalle</strong> hesabı anında engeller (<code class="font-mono">blk</code>), <strong>%20 ihtimalle</strong> ise kuralı atlatan hesap (<code class="font-mono">slip</code>) inceleme kuyruğuna düşer.
+              </p>
+            </div>
+          </div>
+
+          <!-- Sağ: Etkileşimli Anti-Suistimal Test Kutusu -->
+          <div class="lg:col-span-7 p-6 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] flex flex-col justify-between space-y-5">
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="font-extrabold text-base">Canlı Anti-Suistimal Simülatörü</h4>
+                <span id="secQuotaBadge" class="text-xs font-mono px-3 py-1 rounded-full bg-leaf/20 text-leafDark dark:text-leaf font-bold">
+                  Kalan Günlük Hak: 5 / 5
+                </span>
+              </div>
+              <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1">
+                Kendi davet kodunuzla sahte hesap açmayı deneyerek sistemin tepkisini ölçün:
+              </p>
+
+              <!-- Hak Barı -->
+              <div class="w-full h-2.5 rounded-full bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] overflow-hidden mt-3">
+                <div id="secQuotaBar" class="h-full bg-leaf transition-all duration-300" style="width: 100%"></div>
+              </div>
+            </div>
+
+            <!-- Sayaçlar -->
+            <div class="grid grid-cols-3 gap-3 text-center">
+              <div class="p-3 rounded-xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428]">
+                <div id="secAttempt" class="text-2xl font-extrabold">0</div>
+                <div class="text-[11px] text-[#667569] dark:text-[#9db1a2]">Sahte Deneme</div>
+              </div>
+              <div class="p-3 rounded-xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428]">
+                <div id="secBlocked" class="text-2xl font-extrabold text-leafDark dark:text-leaf">0</div>
+                <div class="text-[11px] text-[#667569] dark:text-[#9db1a2]">Engellenen (%80)</div>
+              </div>
+              <div class="p-3 rounded-xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428]">
+                <div id="secSlipped" class="text-2xl font-extrabold text-sun">0</div>
+                <div class="text-[11px] text-[#667569] dark:text-[#9db1a2]">İncelemeye Düşen (%20)</div>
+              </div>
+            </div>
+
+            <!-- Sonuç Mesajı -->
+            <div id="secResultBox" class="p-3.5 rounded-xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] text-xs sm:text-sm font-medium min-h-[54px] flex items-center">
+              Henüz test yapılmadı. “Sahte Hesap Dene” butonuna tıklayın.
+            </div>
+
+            <!-- Aksiyon Butonları -->
+            <div class="flex flex-wrap gap-3">
+              <button id="secTestBtn" class="flex-1 px-4 py-2.5 rounded-xl bg-forest dark:bg-leaf text-white dark:text-[#0c1a10] font-bold text-xs sm:text-sm hover:opacity-90 transition disabled:opacity-40">
+                🕵️ Sahte Hesap Dene (-1 Hak)
+              </button>
+              <button id="secNewDayBtn" class="px-4 py-2.5 rounded-xl border border-[#e6ebe4] dark:border-[#223428] bg-white dark:bg-[#15231a] font-semibold text-xs sm:text-sm hover:border-leaf transition">
+                ☀️ Yeni Gün (Hakkı Yenile)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEKME 3: 3 EKRANLI MOBİL PROTOTİP ANALİZİ -->
+      <div id="panel-prototip" class="tab-panel hidden rounded-3xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] p-6 sm:p-8 space-y-8">
+        <div class="border-b border-[#e6ebe4] dark:border-[#223428] pb-5">
+          <span class="text-xs font-bold uppercase tracking-wider text-leafDark dark:text-leaf">UX / UI Wireframe İncelemesi</span>
+          <h3 class="text-xl sm:text-2xl font-extrabold mt-1">3 Ekranlı Mobil Arayüz Tasarımı ve Kararları</h3>
+          <p class="text-sm text-[#667569] dark:text-[#9db1a2] mt-1">
+            Orijinal dosyadaki kareli eskiz kağıdı (wireframe) üzerinde gösterilen 3 temel ekranın kullanıcı deneyimi ve gizlilik odaklı tasarım gerekçeleri:
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Ekran 1: Kayıt -->
+          <div class="rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] p-5 flex flex-col justify-between space-y-5">
+            <div class="mx-auto w-full max-w-[230px] rounded-[28px] border-2 border-forest dark:border-[#9db1a2] bg-white dark:bg-[#15231a] p-4 shadow-sm space-y-2.5">
+              <div class="w-10 h-1 bg-[#e6ebe4] dark:bg-[#223428] rounded-full mx-auto mb-2"></div>
+              <div class="text-center font-extrabold text-lg">Kayıt</div>
+              <div class="border border-dashed border-[#667569] rounded-lg p-2 text-center text-xs text-[#667569]">Takma ad (Örn: ÇamFilizi)</div>
+              <div class="border border-dashed border-[#667569] rounded-lg p-2 text-center text-xs text-[#667569]">Yaş aralığı ▾</div>
+              <div class="border border-dashed border-[#667569] rounded-lg p-2 text-center text-xs text-[#667569]">☑ Veli onayım var</div>
+              <div class="rounded-lg bg-leaf text-[#10301a] font-bold text-xs text-center py-2.5 mt-1">Kayıt ol</div>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-[#e6ebe4] dark:border-[#223428]">
+              <div class="font-bold text-sm text-leafDark dark:text-leaf">1. Kayıt Ekranı UX Kararı</div>
+              <ul class="text-xs text-[#667569] dark:text-[#9db1a2] space-y-1.5 list-disc pl-4">
+                <li><strong>Sıfır Kişisel Veri:</strong> Ad-soyad, e-posta veya telefon istenmez; yalnızca takma ad kullanılır.</li>
+                <li><strong>Yaş &amp; Veli Onayı:</strong> Hedef kitle lise öğrencileri (18 yaş altı) olduğu için veli onay kutucuğu zorunlu tutulur.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Ekran 2: Ana Ekran -->
+          <div class="rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] p-5 flex flex-col justify-between space-y-5">
+            <div class="mx-auto w-full max-w-[230px] rounded-[28px] border-2 border-forest dark:border-[#9db1a2] bg-white dark:bg-[#15231a] p-4 shadow-sm space-y-2.5">
+              <div class="w-10 h-1 bg-[#e6ebe4] dark:bg-[#223428] rounded-full mx-auto mb-2"></div>
+              <div class="text-center font-extrabold text-lg">20 puan</div>
+              <div class="w-full h-2.5 rounded-full bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] overflow-hidden">
+                <div class="h-full w-2/3 bg-gradient-to-r from-leaf to-sun"></div>
+              </div>
+              <div class="border border-dashed border-[#667569] rounded-lg p-2 text-center text-xs font-mono">FIDAN-7429</div>
+              <div class="rounded-lg bg-leaf text-[#10301a] font-bold text-xs text-center py-2.5">Arkadaşını davet et</div>
+              <div class="border border-dashed border-[#667569] rounded-lg p-2 text-center text-[11px] text-[#667569]">Fidanların: 2 · Günlük hak: 4</div>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-[#e6ebe4] dark:border-[#223428]">
+              <div class="font-bold text-sm text-leafDark dark:text-leaf">2. Ana Ekran UX Kararı</div>
+              <ul class="text-xs text-[#667569] dark:text-[#9db1a2] space-y-1.5 list-disc pl-4">
+                <li><strong>Tek Bakışta Durum:</strong> Puan ilerleme çubuğu (30 puana kalan mesafe) motivasyonu canlı tutar.</li>
+                <li><strong>Tek Ana Eylem (CTA):</strong> Dolu yeşil buton doğrudan davet paylaşımına odaklanır.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Ekran 3: Liderlik -->
+          <div class="rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] p-5 flex flex-col justify-between space-y-5">
+            <div class="mx-auto w-full max-w-[230px] rounded-[28px] border-2 border-forest dark:border-[#9db1a2] bg-white dark:bg-[#15231a] p-4 shadow-sm space-y-2.5">
+              <div class="w-10 h-1 bg-[#e6ebe4] dark:bg-[#223428] rounded-full mx-auto mb-2"></div>
+              <div class="text-center font-extrabold text-lg">Liderlik</div>
+              <div class="flex items-center gap-2 text-xs"><span class="w-5 h-5 rounded-full bg-sun/30 flex items-center justify-center font-bold">1</span><span class="flex-1 border-b border-dashed border-[#667569]"></span><span class="font-bold">12 fidan</span></div>
+              <div class="flex items-center gap-2 text-xs"><span class="w-5 h-5 rounded-full border border-dashed border-[#667569] flex items-center justify-center">2</span><span class="flex-1 border-b border-dashed border-[#667569]"></span><span>9 fidan</span></div>
+              <div class="flex items-center gap-2 text-xs"><span class="w-5 h-5 rounded-full border border-dashed border-[#667569] flex items-center justify-center">3</span><span class="flex-1 border-b border-dashed border-[#667569]"></span><span>7 fidan</span></div>
+              <div class="rounded-lg bg-leaf text-[#10301a] font-bold text-xs text-center py-2.5 mt-2">Sen: 12. sıradasın</div>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-[#e6ebe4] dark:border-[#223428]">
+              <div class="font-bold text-sm text-leafDark dark:text-leaf">3. Liderlik Tablosu UX Kararı</div>
+              <ul class="text-xs text-[#667569] dark:text-[#9db1a2] space-y-1.5 list-disc pl-4">
+                <li><strong>Sosyal Kanıt &amp; Rekabet:</strong> İlk 3 takma ad öne çıkarılarak akran etkileşimi teşvik edilir.</li>
+                <li><strong>Kişisel Konumlandırma:</strong> Alt sabitte kendi sırasını gören kullanıcı bir üst basamağa çıkmaya motive olur.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEKME 4: KAMERA İLE TEMASSIZ EL KONTROLÜ TEKNOLOJİSİ -->
+      <div id="panel-kamera" class="tab-panel hidden rounded-3xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] p-6 sm:p-8 space-y-8">
+        <div class="border-b border-[#e6ebe4] dark:border-[#223428] pb-5">
+          <span class="text-xs font-bold uppercase tracking-wider text-leafDark dark:text-leaf">Sıfır Bağımlılıklı Bilgisayarlı Görü</span>
+          <h3 class="text-xl sm:text-2xl font-extrabold mt-1">80×60 Piksel YCbCr + Hareket Geçmişi &amp; Dwell-Click Algoritması</h3>
+          <p class="text-sm text-[#667569] dark:text-[#9db1a2] mt-1">
+            TensorFlow veya MediaPipe gibi ağır kütüphaneler indirmeden, yalnızca <strong>4.800 piksellik (80×60)</strong> bir tuval üzerinde saniyede 20 kare (50ms aralık) işleyerek el takibi yapar.
+          </p>
+        </div>
+
+        <div class="grid lg:grid-cols-12 gap-8 items-start">
+          <!-- Sol: 4 Adımlı Algoritma Boru Hattı (Pipeline) -->
+          <div class="lg:col-span-6 space-y-3">
+            <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428]">
+              <div class="flex items-center gap-2 font-bold text-sm">
+                <span class="px-2 py-0.5 rounded bg-leaf/20 text-leafDark dark:text-leaf font-mono text-xs">1. YCbCr</span>
+                <span>Işıktan Bağımsız Ten Rengi Filtresi</span>
+              </div>
+              <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1.5 leading-relaxed">
+                RGB pikselleri parlaklık (<code class="font-mono">Y</code>) ve renk farkı (<code class="font-mono">Cb, Cr</code>) bileşenlerine dönüştürülür. Varsayılan <code class="font-mono">Cb≈105, Cr≈150</code> eşiği (veya kullanıcı kalibrasyonu) ile ten pikselleri ayrıştırılır.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428]">
+              <div class="flex items-center gap-2 font-bold text-sm">
+                <span class="px-2 py-0.5 rounded bg-leaf/20 text-leafDark dark:text-leaf font-mono text-xs">2. Motion</span>
+                <span>Son 2 Saniyelik Hareket Geçmişi (<code class="font-mono">mh</code>)</span>
+              </div>
+              <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1.5 leading-relaxed">
+                Arka plandaki sabit ahşap mobilyaları veya duvarları eleme adımıdır. Parlaklık değişimi <code class="font-mono">|Y - prev| &gt; 10</code> olduğunda piksel aktifleşir ve her karede <code class="font-mono">0.025</code> sönümlenir (~2 saniye hafıza).
+              </p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428]">
+              <div class="flex items-center gap-2 font-bold text-sm">
+                <span class="px-2 py-0.5 rounded bg-leaf/20 text-leafDark dark:text-leaf font-mono text-xs">3. Flood-Fill</span>
+                <span>En Büyük Küme ve Parmak Ucu Tespiti</span>
+              </div>
+              <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1.5 leading-relaxed">
+                Bağlantılı bileşen analizi (DFS yığını) ile en az 20 piksellik en büyük yeşil bölge bulunur. Bu bölgenin <strong>en üst (<code class="font-mono">min Y</code>)</strong> piksellerinin ortalaması işaret parmağı ucu kabul edilir.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428]">
+              <div class="flex items-center gap-2 font-bold text-sm">
+                <span class="px-2 py-0.5 rounded bg-sun/25 text-[#6e5000] dark:text-sun font-mono text-xs">4. Dwell</span>
+                <span>1 Saniye Bekleme ile Tıklama &amp; Kaydırma</span>
+              </div>
+              <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1.5 leading-relaxed">
+                İmleç bir butonun üzerinde <strong>1000 ms</strong> durduğunda dairesel halka dolar ve <code class="font-mono">t.click()</code> tetiklenir. Ekranın en üst (%6) veya en alt (%94) kenarına gidildiğinde sayfa otomatik kaydırılır.
+              </p>
+            </div>
+          </div>
+
+          <!-- Sağ: İnteraktif 80x60 Piksel ve Dwell-Click Simülasyonu -->
+          <div class="lg:col-span-6 p-6 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] space-y-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="font-extrabold text-base">İnteraktif Algoritma Simülasyonu</h4>
+                <p class="text-xs text-[#667569] dark:text-[#9db1a2]">Farenizi aşağıdaki 80×60 sensör alanında gezdirin ve hedef butonun üzerinde 1 sn bekleyin.</p>
+              </div>
+              <span class="text-xs font-mono px-2.5 py-1 rounded bg-forest text-white dark:bg-leaf dark:text-[#0c1a10]">80×60 Grid</span>
+            </div>
+
+            <!-- Etkileşimli Sensör Tuvali -->
+            <div id="visionStage" class="relative w-full aspect-[4/3] rounded-2xl bg-[#111915] border-2 border-[#223428] overflow-hidden cursor-crosshair select-none">
+              <canvas id="visionCanvas" width="80" height="60" class="w-full h-full block" style="image-rendering: pixelated;"></canvas>
+
+              <!-- Arka plan gürültü etiketi -->
+              <div class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/60 text-[11px] font-mono text-white/80 pointer-events-none">
+                Sabit Arka Plan (Elendi) vs Hareketli Ten (Yeşil Maske)
+              </div>
+
+              <!-- Sanal Hedef Buton -->
+              <button id="dwellTargetBtn" type="button" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-5 py-3 rounded-full bg-leaf text-[#10301a] font-extrabold text-xs sm:text-sm shadow-lg transition transform ring-4 ring-sun">
+                🌱 Fidan Dik (1 sn bekle)
+              </button>
+
+              <!-- Dwell-Click Halka İmleci -->
+              <div id="simCursor" class="pointer-events-none absolute left-1/2 top-1/4 -translate-x-1/2 -translate-y-1/2 w-12 h-12">
+                <svg width="48" height="48" viewBox="0 0 44 44">
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="4"></circle>
+                  <circle id="simDwellRing" cx="22" cy="22" r="18" fill="none" stroke="#6cb877" stroke-width="4" stroke-dasharray="113" stroke-dashoffset="113" stroke-linecap="round" transform="rotate(-90 22 22)" style="stroke-dashoffset: 0;"></circle>
+                  <circle cx="22" cy="22" r="4" fill="#f1bd45"></circle>
+                </svg>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs bg-white dark:bg-[#15231a] p-3.5 rounded-xl border border-[#e6ebe4] dark:border-[#223428]">
+              <span id="visionStatus" class="font-medium text-[#667569] dark:text-[#9db1a2]"><span class="text-leafDark dark:text-leaf font-bold">✓ Dwell-Click Tetiklendi!</span> Butona temassız tıklandı.</span>
+              <span class="font-mono font-bold text-leafDark dark:text-leaf">Tıklama: <span id="dwellClickCount">1</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEKME 5: ARAŞTIRMA TASARIMI VE ETİK İLKELER -->
+      <div id="panel-arastirma" class="tab-panel hidden rounded-3xl bg-white dark:bg-[#15231a] border border-[#e6ebe4] dark:border-[#223428] p-6 sm:p-8 space-y-8">
+        <div class="border-b border-[#e6ebe4] dark:border-[#223428] pb-5">
+          <span class="text-xs font-bold uppercase tracking-wider text-leafDark dark:text-leaf">Bilimsel Metodoloji &amp; Veri Gizliliği</span>
+          <h3 class="text-xl sm:text-2xl font-extrabold mt-1">Lise Öğrencileri Üzerinde Deneysel Tasarım ve Etik Çerçeve</h3>
+          <p class="text-sm text-[#667569] dark:text-[#9db1a2] mt-1">
+            <strong>Araştırma Sorusu:</strong> Referans tabanlı ve puanlı bir dijital platform, klasik bilgilendirmeye (afiş/broşür) kıyasla lise öğrencilerinin çevre farkındalığını ve katılımını daha fazla artırır mı?
+          </p>
+        </div>
+
+        <!-- Kontrol vs Deney Grubu Karşılaştırması -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="p-6 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428] space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#e6ebe4] dark:bg-[#223428] text-xs font-bold">
+              Grup A · Kontrol Grubu
+            </div>
+            <h4 class="text-lg font-extrabold">Geleneksel Çevre Bilgilendirmesi</h4>
+            <p class="text-xs sm:text-sm text-[#667569] dark:text-[#9db1a2] leading-relaxed">
+              Öğrencilere yalnızca basılı afiş, broşür ve standart bilgilendirme metinleri sunulur. Etkileşimli puan veya sosyal referans mekanizması kullanılmaz.
+            </p>
+            <div class="pt-2 text-xs font-mono text-[#667569] dark:text-[#9db1a2]">
+              Ölçüm: Ön-Test Anketi → Süreç → Son-Test Anketi
+            </div>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-leaf/10 border-2 border-leaf space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-leaf text-[#10301a] text-xs font-bold">
+              Grup B · Deney Grubu
+            </div>
+            <h4 class="text-lg font-extrabold">Davet Ağacı Platformu Kullanımı</h4>
+            <p class="text-xs sm:text-sm text-forest/90 dark:text-[#e9f1e8]/90 leading-relaxed">
+              Öğrenciler belirlenen süre boyunca platformu aktif olarak kullanır; arkadaşlarını davet eder, puan toplar ve sponsor havuzundan sembolik fidan diker.
+            </p>
+            <div class="pt-2 text-xs font-mono text-leafDark dark:text-leaf font-bold">
+              Ölçüm: Ön-Test Anketi → Platform Etkileşimi → Son-Test Anketi
+            </div>
+          </div>
+        </div>
+
+        <!-- Etik ve Güvenlik İlkeleri -->
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428]">
+            <div class="text-xl mb-2">📜</div>
+            <h5 class="font-bold text-sm">Kurumsal &amp; Veli İzinleri</h5>
+            <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1">Uygulama öncesinde veli onam formu ve gerekli durumlarda MEB araştırma izni alınması şart koşulur.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428]">
+            <div class="text-xl mb-2">🔒</div>
+            <h5 class="font-bold text-sm">Cihaz İçi Kamera İşleme</h5>
+            <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1">Kamera akışı hiçbir sunucuya gönderilmez, kaydedilmez ve dışarıdan yapay zeka modeli indirilmez.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-softBg dark:bg-forestDeep border border-[#e6ebe4] dark:border-[#223428]">
+            <div class="text-xl mb-2">💳</div>
+            <h5 class="font-bold text-sm">Sıfır Finansal Risk</h5>
+            <p class="text-xs text-[#667569] dark:text-[#9db1a2] mt-1">Öğrencilerden gerçek para toplanmaz; tüm sponsorluk ve fidan süreçleri sembolik simülasyon olarak yürütülür.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-[#e6ebe4] dark:border-[#223428] mt-12 py-8 px-4 text-center text-xs text-[#667569] dark:text-[#9db1a2]">
+    <p><strong>Davet Ağacı</strong> · Proje Taslağı ve Sistem Mimarisi Açıklama Arayüzü (AI Canvas)</p>
+  </footer>
+
+  <script>
+    // Tema Yönetimi (Aydınlık / Karanlık Mod)
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeLabel = document.getElementById('themeLabel');
+    const htmlEl = document.documentElement;
+
+    // Tek Tıkla Bağımsız HTML Dosyası Olarak İndirme
+    document.getElementById('downloadHtmlBtn').addEventListener('click', () => {
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'DavetAgaci_Analiz.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    function updateThemeUI(isDark) {
+      themeIcon.textContent = isDark ? '☀️' : '🌙';
+      themeLabel.textContent = isDark ? 'Aydınlık Mod' : 'Karanlık Mod';
+    }
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      htmlEl.classList.add('dark');
+      updateThemeUI(true);
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = htmlEl.classList.toggle('dark');
+      updateThemeUI(isDark);
+    });
+
+    // Sekme Geçişleri
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-tab');
+        tabBtns.forEach(b => {
+          b.classList.remove('tab-active');
+          b.classList.add('text-[#667569]', 'dark:text-[#9db1a2]');
+        });
+        btn.classList.add('tab-active');
+        btn.classList.remove('text-[#667569]', 'dark:text-[#9db1a2]');
+
+        tabPanels.forEach(panel => {
+          panel.classList.toggle('hidden', panel.id !== 'panel-' + target);
+        });
+      });
+    });
+
+    // ---------------------------------------------------------
+    // 1. SEKME: SİSTEM AKIŞI VE EKONOMİ SİMÜLATÖRÜ
+    // ---------------------------------------------------------
+    const ecoState = { pts: 0, acc: 0, bud: 1, queue: 0, planted: 0 };
+    const ecoPtsEl = document.getElementById('ecoPts');
+    const ecoBudEl = document.getElementById('ecoBud');
+    const ecoQueueEl = document.getElementById('ecoQueue');
+    const ecoPlantedEl = document.getElementById('ecoPlanted');
+    const ecoFeedbackEl = document.getElementById('ecoFeedback');
+    const simPlantBtn = document.getElementById('simPlantBtn');
+    const ecoHillPath = document.getElementById('ecoHillPath');
+    const ecoMiniTrees = document.getElementById('ecoMiniTrees');
+    const ecoGreenPct = document.getElementById('ecoGreenPct');
+    const ecoGreenBar = document.getElementById('ecoGreenBar');
+
+    function highlightSteps(stepIndices) {
+      for (let i = 1; i <= 5; i++) {
+        const card = document.getElementById('step-' + i);
+        if (stepIndices.includes(i)) {
+          card.classList.add('border-2', 'border-leaf', 'bg-leaf/10');
+          card.classList.remove('border-[#e6ebe4]', 'dark:border-[#223428]');
+        } else {
+          card.classList.remove('border-2', 'border-leaf', 'bg-leaf/10');
+          card.classList.add('border-[#e6ebe4]', 'dark:border-[#223428]');
+        }
+      }
+    }
+
+    function renderEco() {
+      ecoPtsEl.textContent = ecoState.pts;
+      ecoBudEl.textContent = ecoState.bud;
+      ecoQueueEl.textContent = ecoState.queue;
+      ecoPlantedEl.textContent = ecoState.planted;
+      simPlantBtn.disabled = ecoState.pts < 30;
+
+      // --gr hesaplaması: Math.min(1, pl * 0.085 + acc * 0.012)
+      const gr = Math.min(1, ecoState.planted * 0.085 + ecoState.acc * 0.012);
+      const pct = Math.round(gr * 100);
+      ecoGreenPct.textContent = `%${pct} (${gr.toFixed(2)})`;
+      ecoGreenBar.style.width = `${pct}%`;
+      ecoHillPath.setAttribute('fill', gr > 0 ? `rgba(108, 184, 119, ${Math.max(0.22, gr)})` : '#cbd5c9');
+
+      // Mini tepe üzerine dikilen fidanları çiz
+      ecoMiniTrees.innerHTML = '';
+      const treeCoords = [[45,66],[75,62],[105,66],[135,65],[165,62],[195,60],[60,82],[95,84],[130,82],[165,83],[200,80]];
+      for (let i = 0; i < Math.min(ecoState.planted, treeCoords.length); i++) {
+        const [tx, ty] = treeCoords[i];
+        ecoMiniTrees.innerHTML += `<rect x="${tx-1.5}" y="${ty-10}" width="3" height="10" fill="#8a6a4a"/><circle cx="${tx}" cy="${ty-13}" r="6" fill="#529b5d"/>`;
+      }
+    }
+
+    document.getElementById('simInviteBtn').addEventListener('click', () => {
+      ecoState.pts += 10;
+      ecoState.acc += 1;
+      highlightSteps([1, 2, 3]);
+      ecoFeedbackEl.innerHTML = `Davet kabul edildi! <strong>+10 puan</strong> eklendi. ${ecoState.pts >= 30 ? 'Artık 30 puana ulaştınız, fidan dikebilirsiniz!' : 'Fidan dikmek için ' + (30 - ecoState.pts) + ' puan daha gerekiyor.'}`;
+      renderEco();
+    });
+
+    simPlantBtn.addEventListener('click', () => {
+      if (ecoState.pts < 30) return;
+      ecoState.pts -= 30;
+      if (ecoState.bud > 0) {
+        ecoState.bud--;
+        ecoState.planted++;
+        highlightSteps([4, 5]);
+        ecoFeedbackEl.innerHTML = `<strong>Fidan dikildi!</strong> Sponsor havuzundan 1 bütçe düşüldü. Kalan sponsor bütçesi: <strong>${ecoState.bud}</strong>.`;
+      } else {
+        ecoState.queue++;
+        highlightSteps([4]);
+        ecoFeedbackEl.innerHTML = `<strong>⚠️ Tavuk-Yumurta Darboğazı Tetiklendi:</strong> 30 puan harcandı ancak sponsor bütçesi 0 olduğu için fidan <strong>bekleme sırasına (kuyruğa)</strong> alındı! Sponsor bütçesi ekleyin.`;
+      }
+      renderEco();
+    });
+
+    document.getElementById('simSponsorBtn').addEventListener('click', () => {
+      const added = 5 + Math.floor(Math.random() * 6);
+      ecoState.bud += added;
+      let drained = 0;
+      while (ecoState.queue > 0 && ecoState.bud > 0) {
+        ecoState.queue--;
+        ecoState.bud--;
+        ecoState.planted++;
+        drained++;
+      }
+      highlightSteps(drained > 0 ? [4, 5] : [4]);
+      ecoFeedbackEl.innerHTML = drained > 0
+        ? `<strong>Sponsor geldi (+${added} bütçe)!</strong> Sırada bekleyen <strong>${drained} fidan</strong> <code class="font-mono text-xs">drain()</code> fonksiyonuyla otomatik olarak dikildi.`
+        : `<strong>Sponsor geldi!</strong> Havuza +${added} sembolik fidan bütçesi eklendi.`;
+      renderEco();
+    });
+
+    document.getElementById('simResetBtn').addEventListener('click', () => {
+      ecoState.pts = 0; ecoState.acc = 0; ecoState.bud = 1; ecoState.queue = 0; ecoState.planted = 0;
+      highlightSteps([1]);
+      ecoFeedbackEl.innerHTML = `Simülasyon sıfırlandı. Yeni bir davet göndererek akışı test edin.`;
+      renderEco();
+    });
+
+    // ---------------------------------------------------------
+    // 2. SEKME: GÜVENLİK VE ANTI-SUİSTİMAL SİMÜLATÖRÜ
+    // ---------------------------------------------------------
+    const secState = { left: 5, attempt: 0, blocked: 0, slipped: 0 };
+    const secQuotaBadge = document.getElementById('secQuotaBadge');
+    const secQuotaBar = document.getElementById('secQuotaBar');
+    const secAttempt = document.getElementById('secAttempt');
+    const secBlocked = document.getElementById('secBlocked');
+    const secSlipped = document.getElementById('secSlipped');
+    const secResultBox = document.getElementById('secResultBox');
+    const secTestBtn = document.getElementById('secTestBtn');
+
+    function renderSec() {
+      secQuotaBadge.textContent = `Kalan Günlük Hak: ${secState.left} / 5`;
+      secQuotaBar.style.width = `${(secState.left / 5) * 100}%`;
+      secAttempt.textContent = secState.attempt;
+      secBlocked.textContent = secState.blocked;
+      secSlipped.textContent = secState.slipped;
+      secTestBtn.disabled = secState.left <= 0;
+    }
+
+    secTestBtn.addEventListener('click', () => {
+      if (secState.left <= 0) return;
+      secState.left--;
+      secState.attempt++;
+      const caught = Math.random() < 0.8;
+      if (caught) {
+        secState.blocked++;
+        secResultBox.innerHTML = `<span class="text-leafDark dark:text-leaf font-bold mr-1.5">🛡️ ENGELLENDİ:</span> Aynı cihaz/oturum parmak izi tespit edildi. Puan verilmedi.`;
+      } else {
+        secState.slipped++;
+        secResultBox.innerHTML = `<span class="text-sun font-bold mr-1.5">⚠️ İNCELEMEYE ALINDI (%20):</span> Hesap kuralı atlattı ancak şüpheli etkinlik bayrağıyla denetim kuyruğuna düştü.`;
+      }
+      if (secState.left === 0) {
+        secResultBox.innerHTML += ` <strong>(Günlük 5 davet sınırı doldu!)</strong>`;
+      }
+      renderSec();
+    });
+
+    document.getElementById('secNewDayBtn').addEventListener('click', () => {
+      secState.left = 5;
+      secResultBox.textContent = `Yeni gün başladı: Günlük 5 davet hakkı yenilendi.`;
+      renderSec();
+    });
+
+    // ---------------------------------------------------------
+    // 4. SEKME: 80x60 PİKSEL YCbCr + DWELL-CLICK SİMÜLASYONU
+    // ---------------------------------------------------------
+    const vStage = document.getElementById('visionStage');
+    const vCanvas = document.getElementById('visionCanvas');
+    const vCtx = vCanvas.getContext('2d');
+    const simCursor = document.getElementById('simCursor');
+    const simDwellRing = document.getElementById('simDwellRing');
+    const dwellTargetBtn = document.getElementById('dwellTargetBtn');
+    const visionStatus = document.getElementById('visionStatus');
+    const dwellClickCount = document.getElementById('dwellClickCount');
+
+    let pointerNorm = { x: 0.5, y: 0.25, active: false };
+    let dwellStart = null;
+    let dwellLocked = false;
+    let clickCount = 0;
+
+    // 80x60 piksel sanal maske çizimi (Hareketli el silüeti + sabit arka plan gürültüsü)
+    function drawVisionGrid(time) {
+      vCtx.clearRect(0, 0, 80, 60);
+
+      // Sabit arka plan nesneleri (sönük gri - YCbCr eşleşse bile hareket olmadığı için elenir)
+      vCtx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+      vCtx.fillRect(8, 12, 14, 22);
+      vCtx.fillRect(60, 18, 12, 26);
+
+      // Hareketli el / parmak maskesi (80x60 piksel ızgarasında yeşil bloklar)
+      const cx = Math.round(pointerNorm.x * 80);
+      const cy = Math.round(pointerNorm.y * 60);
+
+      // Avuç içi ve parmak pikselleri
+      vCtx.fillStyle = 'rgba(108, 184, 119, 0.72)';
+      for (let dy = 0; dy < 14; dy++) {
+        const halfW = dy < 5 ? 2 : 5;
+        for (let dx = -halfW; dx <= halfW; dx++) {
+          const px = cx + dx;
+          const py = cy + dy;
+          if (px >= 0 && px < 80 && py >= 0 && py < 60) {
+            vCtx.fillRect(px, py, 1, 1);
+          }
+        }
+      }
+
+      // En üst piksel (min Y -> İşaret parmağı ucu sarı nokta)
+      vCtx.fillStyle = '#f1bd45';
+      vCtx.fillRect(cx - 1, cy, 3, 2);
+
+      // Dwell-Click (1 saniye bekleme) kontrolü
+      const stageRect = vStage.getBoundingClientRect();
+      const btnRect = dwellTargetBtn.getBoundingClientRect();
+      const absX = stageRect.left + pointerNorm.x * stageRect.width;
+      const absY = stageRect.top + pointerNorm.y * stageRect.height;
+
+      const isOverBtn = (
+        absX >= btnRect.left && absX <= btnRect.right &&
+        absY >= btnRect.top && absY <= btnRect.bottom
+      );
+
+      if (isOverBtn) {
+        dwellTargetBtn.classList.add('ring-4', 'ring-sun');
+        if (!dwellStart) dwellStart = time;
+        if (!dwellLocked) {
+          const progress = Math.min(1, (time - dwellStart) / 1000);
+          simDwellRing.style.strokeDashoffset = 113 * (1 - progress);
+          visionStatus.textContent = `Hedef kilitlendi: Bekleniyor (%${Math.round(progress * 100)})...`;
+          if (progress >= 1) {
+            dwellLocked = true;
+            clickCount++;
+            dwellClickCount.textContent = clickCount;
+            visionStatus.innerHTML = `<span class="text-leafDark dark:text-leaf font-bold">✓ Dwell-Click Tetiklendi!</span> Butona temassız tıklandı.`;
+            dwellTargetBtn.classList.add('scale-95');
+            setTimeout(() => dwellTargetBtn.classList.remove('scale-95'), 180);
+          }
+        }
+      } else {
+        dwellTargetBtn.classList.remove('ring-4', 'ring-sun');
+        dwellStart = null;
+        dwellLocked = false;
+        simDwellRing.style.strokeDashoffset = 113;
+        if (pointerNorm.active) {
+          visionStatus.textContent = `Parmak ucu izleniyor: X=${cx}, Y=${cy} (80×60)`;
+        }
+      }
+
+      requestAnimationFrame(drawVisionGrid);
+    }
+
+    function updatePointerFromEvent(clientX, clientY) {
+      const rect = vStage.getBoundingClientRect();
+      pointerNorm.x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+      pointerNorm.y = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
+      pointerNorm.active = true;
+      simCursor.style.left = `${pointerNorm.x * 100}%`;
+      simCursor.style.top = `${pointerNorm.y * 100}%`;
+    }
+
+    vStage.addEventListener('mousemove', e => updatePointerFromEvent(e.clientX, e.clientY));
+    vStage.addEventListener('touchmove', e => {
+      if (e.touches[0]) updatePointerFromEvent(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    requestAnimationFrame(drawVisionGrid);
+  </script>
+
+</body></html>

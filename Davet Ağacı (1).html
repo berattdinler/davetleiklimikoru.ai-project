@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Davet Ağacı</title>
+<style>
+@property --gr{syntax:"<number>";inherits:true;initial-value:0}
+:root{--gr:0;--bg:#fff;--ink:#22302a;--mut:#667569;--ln:#e6ebe4;--soft:#f5f8f3;--leaf:#6cb877;--sun:#f1bd45;--btn:#6cb877;--bi:#10301a;color-scheme:light;transition:--gr 1.4s ease;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1812;--ink:#e9f1e8;--mut:#9db1a2;--ln:#223428;--soft:#15231a;--leaf:#7fcf8b;--btn:#7fcf8b;--bi:#0c1a10;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1812;--ink:#e9f1e8;--mut:#9db1a2;--ln:#223428;--soft:#15231a;--leaf:#7fcf8b;--btn:#7fcf8b;--bi:#0c1a10;color-scheme:dark}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth}
+body{margin:0;min-height:100%;background:var(--bg) linear-gradient(180deg,transparent 30%,color-mix(in srgb,var(--leaf) calc(var(--gr) * 24%),transparent)) fixed;color:var(--ink);font:16px/1.6 ui-rounded,"Nunito","Segoe UI",system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--bg);border-bottom:1px solid var(--ln);display:flex;align-items:center;gap:18px;padding:10px 20px;flex-wrap:wrap}
+header b{display:flex;align-items:center;gap:8px;font-size:1.05rem}
+header nav{display:flex;gap:16px;margin-left:auto;align-items:center;flex-wrap:wrap}
+header a{color:var(--ink);text-decoration:none;font-size:.92rem}
+.wrap{max-width:1060px;margin:0 auto;padding:44px 20px}
+h1,h2,h3{margin:0;font-weight:700}
+h1{font-size:clamp(2.4rem,7vw,4.2rem);line-height:1.04;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,4vw,2.1rem);margin-bottom:10px}
+h3{font-size:1.05rem;margin-bottom:6px}
+.lead{max-width:48ch;color:var(--mut);margin:16px 0 22px}
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px;align-items:center}
+.btn,.act,.rs{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{font-weight:700;border:0;border-radius:99px;padding:12px 22px;background:var(--btn);color:var(--bi);text-decoration:none;display:inline-block}
+.btn.o{background:transparent;color:var(--ink);border:1.5px solid var(--leaf)}
+.acts{display:flex;gap:12px;flex-wrap:wrap}
+.btn:focus-visible,.act:focus-visible,.rs:focus-visible,a:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.small{font-size:.85rem;color:var(--mut);margin:14px 0 0}
+.stage{border:1px solid var(--ln);border-radius:26px;background:linear-gradient(var(--bg),var(--soft));overflow:hidden}
+.stage svg{display:block;width:100%;height:auto}
+.hill{fill:color-mix(in srgb,var(--leaf) calc(var(--gr) * 100%),var(--soft))}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:32px}
+.cols>div{border-top:3px solid var(--leaf);padding-top:14px}
+.cols p{margin:0;color:var(--mut)}
+#sim{border-top:1px solid var(--ln);border-bottom:1px solid var(--ln);background:color-mix(in srgb,var(--soft) 70%,transparent)}
+#sim[hidden]{display:none}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.flow{list-style:none;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:20px 0}
+.flow li{padding:7px 14px;border:1.5px solid var(--ln);border-radius:99px;font-size:.88rem;color:var(--mut);transition:all .3s}
+.flow li.on{background:color-mix(in srgb,var(--leaf) 30%,var(--bg));border-color:var(--leaf);color:var(--ink)}
+.grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(250px,1fr);gap:28px}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.act{display:block;width:100%;text-align:left;background:var(--bg);border:1.5px solid var(--ln);border-radius:16px;padding:11px 14px;margin:0 0 9px}
+.act small{display:block;color:var(--mut);font-size:.8rem}
+.act:hover:not(:disabled){border-color:var(--leaf)}
+.act.p{background:var(--btn);border-color:var(--btn);color:var(--bi)}
+.act.p small{color:var(--bi);opacity:.8}
+.act:disabled{opacity:.45;cursor:not-allowed}
+.rs{background:none;border:1.5px solid var(--ln);border-radius:99px;padding:8px 16px}
+#note{min-height:3em;margin:12px 2px 0}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;margin-top:28px}
+dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:0 14px}
+dt,dd{margin:0;padding:6px 0;border-bottom:1px solid var(--ln)}
+dt{color:var(--mut)}dd{font-weight:700;text-align:right}
+#ins{background:color-mix(in srgb,var(--leaf) 16%,var(--bg));border-left:4px solid var(--leaf);padding:12px 14px;border-radius:0 14px 14px 0;margin:0 0 16px}
+ul{list-style:none;padding:0;margin:0}
+li.lg{padding:6px 0;border-bottom:1px solid var(--ln);font-size:.9rem}
+.paper{background-image:linear-gradient(var(--ln) 1px,transparent 1px),linear-gradient(90deg,var(--ln) 1px,transparent 1px);background-size:24px 24px;border:1px solid var(--ln);border-radius:14px;padding:26px;overflow-x:auto;margin-top:18px}
+.phones{display:flex;gap:30px;min-width:max-content}
+.ph{width:212px}
+.scr{background:var(--bg);border:2px solid var(--ink);border-radius:26px;padding:16px 12px;min-height:330px}
+.b{border:1.5px dashed var(--mut);border-radius:8px;padding:9px;font-size:.8rem;color:var(--mut);margin:9px 0;text-align:center}
+.b.f{background:var(--btn);color:var(--bi);border:1.5px solid var(--btn);font-weight:700}
+.b.big{font-size:1.4rem;font-weight:700;color:var(--ink)}
+.row{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:.8rem;color:var(--mut)}
+.row i{width:26px;height:26px;border-radius:50%;border:1.5px dashed var(--mut);flex:none}
+.row u{flex:1;border-top:1.5px dashed var(--mut)}
+.bar{height:10px;border-radius:99px;background:var(--soft);border:1px solid var(--ln);overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--leaf),var(--sun))}
+.cap{font-size:.85rem;color:var(--mut);margin:10px 4px 0}
+footer{border-top:1px solid var(--ln);text-align:center;font-size:.85rem;color:var(--mut);padding:24px 20px}
+#cam{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;width:240px;background:var(--bg);border:1.5px solid var(--ln);border-radius:18px;padding:10px}
+#cam[hidden]{display:none}
+.cv{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:#111;transform:scaleX(-1)}
+.cv video,.cv canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.cv canvas{image-rendering:pixelated}
+#calbox{position:absolute;left:30%;top:25%;width:40%;height:50%;border:2px dashed #fff;border-radius:10px}
+#calbox[hidden]{display:none}
+#cst{font-size:.8rem;color:var(--mut);margin:8px 2px}
+#ptr{position:fixed;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;pointer-events:none;z-index:30}
+#ptr[hidden]{display:none}
+.hv{outline:3px solid var(--sun);outline-offset:3px}
+.pop{animation:pop .5s ease-out;transform-box:fill-box;transform-origin:center}
+.grow{animation:grow .9s ease-out}
+.bob{animation:bob 4s ease-in-out infinite}
+.beam{animation:fade 1.4s ease-out forwards}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes grow{from{transform:scale(.1)}to{transform:scale(1)}}
+@keyframes bob{50%{transform:translateY(5px)}}
+@keyframes fade{from{opacity:1}to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.pop,.grow,.bob,.beam{animation:none}:root{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+  <b><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--leaf)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14z"/><path d="M5 19l8-8"/></svg>Davet Ağacı</b>
+  <nav><a href="#nasil">Nasıl çalışır</a><a href="#cizim">Ekran çizimleri</a><a href="#arastirma">Araştırma</a><button class="rs" id="hdrSim">Simülasyon</button><button class="rs" id="camBtn">Elimle kullan</button></nav>
+</header>
+
+<main>
+<section class="wrap hero">
+  <div>
+    <h1>Davet et. Puan kazan. Fidan dik.</h1>
+    <p class="lead">Arkadaşını davet et, puan topla, puanlarınla sembolik fidan dik. Maliyeti sponsor kuruluşlar karşılar, sen bir şey ödemezsin.</p>
+    <div class="acts">
+      <button class="btn" id="tg" aria-expanded="false" aria-controls="sim">Sistemin simülasyonunu aç</button>
+      <a class="btn o" href="#cizim">Ekran çizimlerine bak</a>
+      <button class="btn o" id="camBtn2">Kamerayla, elimle kullan</button>
+    </div>
+    <p class="small">Bu sayfa bir proje taslağı prototipidir. Sayılar örnektir, gerçek para toplanmaz.</p>
+  </div>
+  <div class="stage">
+    <svg viewBox="0 0 400 340" role="img" aria-label="Davetlerle büyüyen ağ ve fidanlar">
+      <ellipse cx="200" cy="318" rx="190" ry="20" fill="var(--soft)"/>
+      <path d="M200 320V215" stroke="#8a6a4a" stroke-width="9" stroke-linecap="round"/>
+      <g id="hv"></g>
+      <circle cx="200" cy="190" r="22" fill="var(--ink)"/>
+      <text x="200" y="195" text-anchor="middle" font-size="14" font-weight="700" fill="var(--bg)">Sen</text>
+    </svg>
+  </div>
+</section>
+
+<section id="sim" hidden>
+  <div class="wrap">
+    <div class="top">
+      <div><h2>Sistem simülasyonu</h2><p class="lead" style="margin:0">Sistemin nasıl çalışacağını dene: davet, puan, sponsor ve fidan. Neyin işleyip neyin tıkandığını gör.</p></div>
+      <div class="acts"><button class="rs" id="reset">Baştan başla</button><button class="rs" id="close">Simülasyonu kapat</button></div>
+    </div>
+    <ol class="flow" id="flow"><li>Sen davet edersin</li><li>Arkadaşın katılır</li><li>Puan kazanırsın</li><li>Sponsor fidanı karşılar</li><li>Fidan dikilir</li></ol>
+    <div class="grid">
+      <div class="stage">
+        <svg viewBox="0 0 640 400" role="img" aria-label="Davetlerle büyüyen ağ, sponsor balonları ve yeşeren tepe">
+          <path class="hill" d="M0 300Q160 250 320 285T640 270V400H0Z"/>
+          <g id="grass"></g><g id="bal"></g><g id="ppl"></g><g id="seeds"></g><g id="trees"></g>
+        </svg>
+      </div>
+      <div>
+        <button class="act p" id="invite"><b>Arkadaşını davet et</b><small>%70 ihtimalle kabul eder, günde en fazla 5 hak</small></button>
+        <button class="act" id="fake"><b>Sahte hesapla puan kasmayı dene</b><small>Sistem yakalar mı, kaçırır mı?</small></button>
+        <button class="act" id="sponsor"><b>Sponsor gelsin</b><small>Sembolik fidan bütçesi ekler</small></button>
+        <button class="act" id="plant"><b>Fidan dik (30 puan)</b><small>Bütçe yoksa fidan sıraya girer</small></button>
+        <button class="act" id="day"><b>Yeni gün</b><small>Günlük davet hakkını yeniler</small></button>
+        <button class="act" id="auto"><b>Örnek senaryoyu otomatik oynat</b><small>Sunum için: tüm akışı sırayla gösterir</small></button>
+        <p id="note" role="status">Bir arkadaşını davet ederek başla.</p>
+      </div>
+    </div>
+    <div class="meta">
+      <div><h3>Ne gözlemliyoruz?</h3><p id="ins"></p><dl id="mx"></dl></div>
+      <div><h3>Olay günlüğü</h3><ul id="log"></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="nasil">
+  <h2>Nasıl çalışır?</h2>
+  <div class="cols">
+    <div><h3>1. Davet</h3><p>Kullanıcı arkadaşlarına davet kodu gönderir. Günde en fazla 5 davet hakkı vardır.</p></div>
+    <div><h3>2. Puan</h3><p>Davet kabul edilince kullanıcı puan kazanır. Sahte hesaplar puan vermez.</p></div>
+    <div><h3>3. Sponsor</h3><p>Sponsor kuruluşlar fidan bütçesini karşılar. Kullanıcıdan para istenmez.</p></div>
+    <div><h3>4. Fidan</h3><p>Yeterli puanı olan kullanıcı sembolik fidan diker, bütçeden bir fidan düşer.</p></div>
+  </div>
+</section>
+
+<section class="wrap" id="cizim">
+  <h2>Prototip çizimi: 3 ekran</h2>
+  <p class="lead">Uygulamanın telefondaki ilk taslağı. Kesik çizgili kutular henüz tasarlanmamış alanlar, dolu kutular ana butonlardır.</p>
+  <div class="paper"><div class="phones">
+    <div class="ph"><div class="scr"><div class="b big">Kayıt</div><div class="b">Takma ad</div><div class="b">Yaş aralığı ▾</div><div class="b">☐ Veli onayım var</div><div class="b f">Kayıt ol</div></div>
+      <p class="cap"><strong>1. Kayıt.</strong> Gerçek ad veya telefon istenmez. Yaşa göre veli onayı sorulur.</p></div>
+    <div class="ph"><div class="scr"><div class="b big">0 puan</div><div class="bar"><i style="width:40%"></i></div><div class="b">Davet kodu: FIDAN-XXXX</div><div class="b f">Arkadaşını davet et</div><div class="b">Fidanların: 0 · Günlük hak: 5</div></div>
+      <p class="cap"><strong>2. Ana ekran.</strong> Puan, davet kodu ve günlük hak tek bakışta görünür.</p></div>
+    <div class="ph"><div class="scr"><div class="b big">Liderlik</div><div class="row"><i></i><u></u>1</div><div class="row"><i></i><u></u>2</div><div class="row"><i></i><u></u>3</div><div class="row"><i></i><u></u>4</div><div class="b f">Sen: 12. sıradasın</div></div>
+      <p class="cap"><strong>3. Liderlik.</strong> İlk üç takma ad öne çıkar, kullanıcı kendi sırasını görür.</p></div>
+  </div></div>
+</section>
+
+<section class="wrap" id="arastirma">
+  <h2>Bu prototip neyi test edecek?</h2>
+  <p class="lead">Araştırma sorusu (taslak): Referans tabanlı, puanlı bir platform, klasik bilgilendirmeye göre lise öğrencilerinin çevre farkındalığını ve katılımını daha çok artırır mı?</p>
+  <div class="cols">
+    <div><h3>Kontrol grubu</h3><p>Afiş ve broşürle çevre bilgilendirmesi alır.</p></div>
+    <div><h3>Deney grubu</h3><p>Platformu belirli bir süre kullanır. İki grup ön-test ve son-test anketini doldurur.</p></div>
+    <div><h3>Başlamadan önce</h3><p>Veli onam formu, gerekiyorsa MEB araştırma izni, takma adla kayıt ve gerçek bağış yerine sembolik simülasyon.</p></div>
+  </div>
+</section>
+</main>
+<footer>Bu sayfa bir proje taslağı prototipidir. Sponsorlar yer tutucudur, oranlar rastgele ve örnektir, kişisel veri toplanmaz. Kamera görüntüsü cihazdan çıkmaz ve dışarıdan model indirilmez.</footer>
+<aside id="cam" hidden aria-label="Kamera kontrolü">
+  <div class="cv"><video id="vid" playsinline muted></video><canvas id="ov" width="80" height="60"></canvas><div id="calbox" hidden></div></div>
+  <p id="cst">Kamera bekleniyor.</p>
+  <p class="small" style="margin:0 2px 8px">Eli hareket ettirerek işaret parmağını yukarı doğrult. Kaydırmak için eli ekranın en üstüne ya da en altına götür. Yeşil alan, izlenen eli gösterir.</p>
+  <div class="acts"><button class="rs" id="calBtn">Rengi ayarla</button><button class="rs" id="camStop">Kapat</button></div>
+</aside>
+<div id="ptr" hidden><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18" fill="none" stroke="var(--ink)" stroke-opacity=".25" stroke-width="4"/><circle id="ring" cx="22" cy="22" r="18" fill="none" stroke="var(--leaf)" stroke-width="4" stroke-dasharray="113" stroke-dashoffset="113" stroke-linecap="round" transform="rotate(-90 22 22)"/><circle cx="22" cy="22" r="4" fill="var(--sun)"/></svg></div>
+
+<script>
+const $=id=>document.getElementById(id),NS="http://www.w3.org/2000/svg";
+const TP=[[360,302],[420,298],[480,302],[540,296],[600,300],[390,332],[450,336],[510,332],[570,334],[340,350],[420,364],[500,366]];
+const GP=[[60,330,40],[160,352,50],[260,340,36],[340,318,34],[470,318,44],[560,318,34],[620,345,30],[110,376,44],[230,378,38],[380,386,40]];
+let S,playing=false;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function add(p,t,a,x){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(x)e.textContent=x;p.appendChild(e);return e}
+function hero(){const g=$("hv");
+  for(let i=0;i<9;i++){const a=i*2.4,r=60+i*9,x=200+r*Math.cos(a)*1.15,y=160+r*Math.sin(a)*.75;
+    add(g,"line",{x1:200,y1:190,x2:x,y2:y,stroke:"var(--leaf)","stroke-width":2,opacity:.55});
+    add(g,"circle",{cx:x,cy:y,r:10,fill:"var(--leaf)",stroke:"var(--bg)","stroke-width":3})}
+  [70,110,290,330].forEach(x=>{add(g,"path",{d:"M"+x+" 318v-14",stroke:"#8a6a4a","stroke-width":3});add(g,"circle",{cx:x,cy:298,r:9,fill:"var(--sun)"})})}
+function init(){S={d:1,pts:0,sent:0,acc:0,blk:0,slip:0,pl:0,q:0,bud:0,spn:0,left:5,gr:0,ppl:[],lg:[]};$("note").textContent="Bir arkadaşını davet ederek başla.";render()}
+function flash(...n){const l=$("flow").children;n.forEach(i=>{l[i].classList.add("on");setTimeout(()=>l[i].classList.remove("on"),1100)})}
+function note(t){$("note").textContent=t;S.lg.unshift("Gün "+S.d+": "+t);S.lg=S.lg.slice(0,6)}
+function drain(){let n=0;while(S.q>0&&S.bud>0){S.q--;S.bud--;S.pl++;n++}return n}
+function inv(force,fake){
+  if(S.left<=0){note("Bugünkü davet hakkı bitti. Sınır, sahte hesapla puan toplamayı zorlaştırmak için konuldu.");render();return}
+  S.left--;S.sent++;
+  if(fake){
+    if(Math.random()<.8){S.blk++;S.ppl.push("blk");note("Engellendi: aynı cihazdan açılan hesap puan vermez.")}
+    else{S.slip++;S.ppl.push("slip");note("Kural kaçırdı: hesap açıldı ama puanlar incelemeye alındı. Kural sıkılaştırılmalı.")}
+    flash(0)
+  }else if(force||Math.random()<.7){
+    S.acc++;S.pts+=10;S.ppl.push("ok");note("Arkadaşın davetini kabul etti: +10 puan.");flash(0,1,2)
+  }else{S.ppl.push("no");note("Davet cevapsız kaldı, puan yok.");flash(0)}
+  render(true)
+}
+function sponsor(){
+  const c=5+Math.floor(Math.random()*6);S.spn++;S.bud+=c;
+  const n=drain();flash(3);if(n)flash(4);
+  note("Yeni sponsor geldi: "+c+" sembolik fidan bütçesi."+(n?" Sıradaki "+n+" fidan dikildi.":""));render(false,n>0)
+}
+function plant(){
+  if(S.pts<30)return;S.pts-=30;
+  if(S.bud>0){S.bud--;S.pl++;flash(3,4);note("Fidan dikildi. Maliyeti sponsor bütçesinden düştü.");render(false,true)}
+  else{S.q++;note("Sponsor bütçesi yok: fidan sıraya alındı. Sponsor gelince dikilecek.");render()}
+}
+function day(){S.d++;S.left=5;note("Yeni gün başladı: davet hakkı yenilendi.");render()}
+async function auto(){
+  if(playing)return;playing=true;init();
+  const st=[()=>inv(true),()=>inv(true),()=>inv(true),plant,sponsor,()=>inv(false,true),day,()=>inv(true),()=>inv(true),()=>inv(true),plant];
+  for(const f of st){await sleep(1400);f()}
+  playing=false;render()
+}
+function render(newPerson,newTree){
+  S.gr=Math.min(1,S.pl*.085+S.acc*.012);
+  document.documentElement.style.setProperty("--gr",S.gr.toFixed(2));
+  $("invite").disabled=$("fake").disabled=playing||S.left<=0;
+  $("sponsor").disabled=$("day").disabled=$("auto").disabled=playing;
+  $("plant").disabled=playing||S.pts<30;
+  const rate=S.sent?Math.round(S.acc/S.sent*100):0;
+  const M=[["Puan",S.pts],["Gönderilen davet",S.sent],["Kabul edilen",S.acc+" (%"+rate+")"],["Engellenen sahte hesap",S.blk],["Kaçan sahte hesap",S.slip],["Sponsor sayısı",S.spn],["Kalan sponsor bütçesi",S.bud],["Sırada bekleyen fidan",S.q],["Dikilen fidan",S.pl],["Yeşillik","%"+Math.round(S.gr*100)]];
+  $("mx").innerHTML="";M.forEach(m=>{const a=document.createElement("dt"),b=document.createElement("dd");a.textContent=m[0];b.textContent=m[1];$("mx").append(a,b)});
+  let t="Bir arkadaşını davet ederek başla.";
+  if(S.q>0&&S.bud===0)t="Fidanlar sponsor bekliyor. Kullanıcılar puan topladı ama bütçe yok: bu projenin “tavuk-yumurta” riski.";
+  else if(S.slip>0)t="Bir sahte hesap kuralı atlattı. Kuralın ne kadar sıkı olacağı araştırma sorularından biri.";
+  else if(S.sent>2&&rate<50)t="Kabul oranı düşük (%"+rate+"). Davet mesajı veya ödül yeterince çekici olmayabilir.";
+  else if(S.pl>0)t="Her fidan sponsor bütçesinden düşüyor. Bütçe bitince sistemin yeniden sponsor bulması gerekir.";
+  $("ins").textContent=t;
+  $("log").innerHTML="";S.lg.forEach(x=>{const li=document.createElement("li");li.className="lg";li.textContent=x;$("log").appendChild(li)});
+  ["grass","bal","ppl","seeds","trees"].forEach(i=>$(i).innerHTML="");
+  GP.forEach((g,i)=>add($("grass"),"ellipse",{cx:g[0],cy:g[1],rx:g[2],ry:9,fill:"var(--leaf)",opacity:Math.max(0,Math.min(.5,S.gr*1.4-i*.1))}));
+  for(let i=0;i<Math.min(S.spn,5);i++){
+    const x=100+i*110,y=60+(i%2)*18,g=add($("bal"),"g",{class:"bob"});
+    add(g,"line",{x1:x,y1:y+22,x2:x,y2:y+55,stroke:"var(--mut)","stroke-width":1.5});
+    add(g,"circle",{cx:x,cy:y,r:22,fill:"var(--sun)"});
+    add(g,"text",{x:x,y:y+5,"text-anchor":"middle","font-size":15,"font-weight":700,fill:"#3a2a00"},"ABCDE"[i]);
+  }
+  const P=$("ppl"),L=S.ppl.slice(-14);
+  L.forEach((k,i)=>{
+    const x=175+(i%7)*46,y=165+Math.floor(i/7)*70+(i%2)*22,isNew=newPerson&&i===L.length-1;
+    const c=k==="ok"?"var(--leaf)":k==="slip"?"var(--sun)":"var(--mut)";
+    add(P,"line",{x1:100,y1:215,x2:x,y2:y,stroke:c,"stroke-width":k==="ok"?2:1.5,"stroke-dasharray":k==="ok"?"0":"4 4",opacity:.7});
+    add(P,"circle",{cx:x,cy:y,r:k==="ok"?11:9,fill:k==="ok"?c:"var(--bg)",stroke:c,"stroke-width":2,class:isNew?"pop":""});
+    if(k==="blk")add(P,"text",{x:x,y:y+5,"text-anchor":"middle","font-size":14,fill:"var(--mut)"},"×");
+  });
+  add(P,"circle",{cx:100,cy:215,r:22,fill:"var(--ink)"});
+  add(P,"text",{x:100,y:220,"text-anchor":"middle","font-size":14,"font-weight":700,fill:"var(--bg)"},"Sen");
+  for(let j=0;j<Math.min(S.q,12-S.pl);j++){const p=TP[S.pl+j];if(!p)break;
+    add($("seeds"),"circle",{cx:p[0],cy:p[1]-12,r:8,fill:"none",stroke:"var(--mut)","stroke-dasharray":"3 3","stroke-width":1.5});
+    add($("seeds"),"line",{x1:p[0],y1:p[1],x2:p[0],y2:p[1]-4,stroke:"var(--mut)","stroke-width":1.5})}
+  for(let j=0;j<Math.min(S.pl,12);j++){
+    const p=TP[j],o=add($("trees"),"g",{transform:"translate("+p[0]+","+p[1]+")"}),n=add(o,"g",{class:newTree&&j===S.pl-1?"grow":""});
+    add(n,"rect",{x:-3,y:-26,width:6,height:26,fill:"#8a6a4a"});
+    [[0,-38,16],[-10,-28,12],[10,-28,12]].forEach(c=>add(n,"circle",{cx:c[0],cy:c[1],r:c[2],fill:"var(--leaf)"}));
+    if(newTree&&j===S.pl-1&&S.spn){const bx=100+((S.spn-1)%5)*110;add($("trees"),"line",{x1:bx,y1:100,x2:p[0],y2:p[1]-55,stroke:"var(--sun)","stroke-width":3,"stroke-dasharray":"6 5",class:"beam"})}
+  }
+}
+function show(open){
+  $("sim").hidden=!open;$("tg").setAttribute("aria-expanded",open);
+  $("tg").textContent=open?"Simülasyonu kapat":"Sistemin simülasyonunu aç";
+  if(open)$("sim").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("tg").onclick=()=>show($("sim").hidden);
+$("hdrSim").onclick=()=>show(true);
+$("close").onclick=()=>{show(false);window.scrollTo({top:0,behavior:"smooth"})};
+$("invite").onclick=()=>inv(false);$("fake").onclick=()=>inv(false,true);
+$("sponsor").onclick=sponsor;$("plant").onclick=plant;$("day").onclick=day;$("auto").onclick=auto;
+$("reset").onclick=()=>{playing=false;init()};
+
+/* Kamera ile el kontrolü: harici model veya ağ isteği yok.
+   Küçük bir görüntüde (80x60) ten rengi + son 2 saniyedeki hareket birleştirilir,
+   en büyük bölgenin en üst noktası işaret parmağı ucu sayılır. */
+const CW=80,CH=60,N=CW*CH;
+const cam={on:false,x:.5,y:.5,miss:99,t:null,ts:0,lock:null,stream:null,cal:{cb:105,cr:150,tol:22},calMode:false,last:0,has:false,d:null,prev:new Float32Array(N),mh:new Float32Array(N)};
+const vid=$("vid"),ov=$("ov"),ox=ov.getContext("2d"),wk=document.createElement("canvas");
+wk.width=CW;wk.height=CH;
+const wx=wk.getContext("2d",{willReadFrequently:true}),img=ox.createImageData(CW,CH),mask=new Uint8Array(N),seen=new Uint8Array(N),stk=new Int32Array(N);
+const clamp=v=>Math.min(1,Math.max(0,v));
+function cst(t){$("cst").textContent=t}
+function ycc(d,i){const r=d[i],g=d[i+1],b=d[i+2];return[.299*r+.587*g+.114*b,128-.1687*r-.3313*g+.5*b,128+.5*r-.4187*g-.0813*b]}
+function findTip(){
+  seen.fill(0);let best=null;
+  for(let s=0;s<N;s++){
+    if(!mask[s]||seen[s])continue;
+    let h=0,e=0;stk[e++]=s;seen[s]=1;
+    while(h<e){const p=stk[h++],x=p%CW,y=(p-x)/CW;
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+        const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=CW||ny>=CH)continue;
+        const q=ny*CW+nx;if(mask[q]&&!seen[q]){seen[q]=1;stk[e++]=q}}}
+    if(e>=20&&(!best||e>best.n)){
+      let my=CH,sx=0,k=0;
+      for(let i=0;i<e;i++)my=Math.min(my,Math.floor(stk[i]/CW));
+      for(let i=0;i<e;i++){const p=stk[i];if(Math.floor(p/CW)<=my+2){sx+=p%CW;k++}}
+      best={n:e,x:sx/k/CW,y:my/CH}}
+  }
+  return best
+}
+function calibrate(){
+  if(!cam.calMode){cam.calMode=true;$("calbox").hidden=false;$("calBtn").textContent="Tamam";cst("Elini açık şekilde kutunun içine koy, sonra “Tamam”a bas.");return}
+  cam.calMode=false;$("calbox").hidden=true;$("calBtn").textContent="Rengi ayarla";
+  const d=cam.d;if(!d)return;
+  const cbs=[],crs=[];
+  for(let y=Math.floor(CH*.25);y<CH*.75;y++)for(let x=Math.floor(CW*.3);x<CW*.7;x++){const[,cb,cr]=ycc(d,(y*CW+x)*4);cbs.push(cb);crs.push(cr)}
+  cbs.sort((a,b)=>a-b);crs.sort((a,b)=>a-b);
+  cam.cal={cb:cbs[cbs.length>>1],cr:crs[crs.length>>1],tol:16};
+  cam.mh.fill(0);cst("Renk ayarlandı. Elini hareket ettir.")
+}
+async function camStart(){
+  $("cam").hidden=false;if(cam.on)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){cst("Bu tarayıcıda ya da bu bağlamda kamera erişimi yok. Sayfayı https bağlantısıyla, kendi sekmesinde aç.");return}
+  cst("Kamera izni bekleniyor.");
+  try{cam.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:640},height:{ideal:480}},audio:false});vid.srcObject=cam.stream;await vid.play()}
+  catch(e){if(cam.stream)cam.stream.getTracks().forEach(t=>t.stop());cam.stream=null;
+    cst(e.name==="NotFoundError"?"Kamera bulunamadı.":e.name==="NotReadableError"?"Kamera başka bir uygulama tarafından kullanılıyor.":"Kamera izni alınamadı. Adres çubuğundan izin ver; olmazsa sayfayı kendi sekmesinde aç.");return}
+  cam.on=true;cam.miss=99;cam.last=0;cam.has=false;cam.prev.fill(0);cam.mh.fill(0);
+  cst("Kamera açık. Elini hareket ettir.");requestAnimationFrame(loop)
+}
+function release(){if(cam.t)cam.t.classList.remove("hv");cam.t=null;cam.lock=null;$("ring").style.strokeDashoffset=113}
+function camStop(){cam.on=false;cam.calMode=false;$("calbox").hidden=true;$("calBtn").textContent="Rengi ayarla";if(cam.stream)cam.stream.getTracks().forEach(t=>t.stop());cam.stream=null;$("cam").hidden=true;$("ptr").hidden=true;release()}
+function loop(now){
+  if(!cam.on)return;requestAnimationFrame(loop);
+  if(now-cam.last<50||vid.readyState<2)return;cam.last=now;
+  wx.drawImage(vid,0,0,CW,CH);
+  const d=cam.d=wx.getImageData(0,0,CW,CH).data,c=cam.cal;
+  mask.fill(0);
+  for(let i=0;i<N;i++){
+    const[y,cb,cr]=ycc(d,i*4);
+    const mv=cam.has&&Math.abs(y-cam.prev[i])>10;
+    cam.prev[i]=y;cam.mh[i]=mv?1:Math.max(0,cam.mh[i]-.025);
+    if(cam.mh[i]>0&&y>35&&Math.abs(cb-c.cb)<c.tol&&Math.abs(cr-c.cr)<c.tol)mask[i]=1
+  }
+  cam.has=true;
+  const tip=findTip(),pt=$("ptr");
+  for(let i=0;i<N;i++){const o=i*4;img.data[o]=108;img.data[o+1]=184;img.data[o+2]=119;img.data[o+3]=mask[i]?190:0}
+  ox.putImageData(img,0,0);
+  if(tip){
+    if(cam.miss>10){cam.x=tip.x;cam.y=tip.y}else{cam.x+=(tip.x-cam.x)*.4;cam.y+=(tip.y-cam.y)*.4}
+    cam.miss=0;ox.fillStyle="#f1bd45";ox.beginPath();ox.arc(tip.x*CW,tip.y*CH,3,0,7);ox.fill()
+  }else cam.miss++;
+  if(cam.miss>10){if(!cam.calMode)cst("El görünmüyor. Elini kameraya göster ve hafifçe hareket ettir.");pt.style.opacity=.3;release();return}
+  if(!cam.calMode)cst("El izleniyor. İşaret parmağının ucunu bir düğmenin üstünde 1 saniye tut, tıklasın.");
+  const nx=clamp((1-cam.x-.08)/.84),ny=clamp((cam.y-.05)/.8),X=nx*innerWidth,Y=ny*innerHeight;
+  pt.hidden=false;pt.style.opacity=1;pt.style.transform="translate("+X+"px,"+Y+"px)";
+  if(!cam.calMode)dwell(X,Y,ny)
+}
+function dwell(X,Y,ny){
+  let t=document.elementFromPoint(X,Y);t=t&&t.closest(".btn,.act,.rs,header a");
+  if(t&&t.disabled)t=null;
+  if(t!==cam.t){if(cam.t)cam.t.classList.remove("hv");cam.t=t;cam.ts=performance.now();if(t!==cam.lock)cam.lock=null;if(t)t.classList.add("hv")}
+  let p=0;
+  if(t&&t!==cam.lock){p=(performance.now()-cam.ts)/1000;if(p>=1){t.click();cam.lock=t;p=0}}
+  $("ring").style.strokeDashoffset=113*(1-Math.min(p,1));
+  if(!t){if(ny<.06)scrollBy({top:-14,behavior:"instant"});else if(ny>.94)scrollBy({top:14,behavior:"instant"})}
+}
+$("camBtn").onclick=camStart;$("camBtn2").onclick=camStart;$("camStop").onclick=camStop;$("calBtn").onclick=calibrate;
+hero();init();
+</script>
+</body>
+</html>
